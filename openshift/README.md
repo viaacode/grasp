@@ -4,4 +4,4 @@
 - cd datamodels/
 - oc project metadata-mgm
 - cd graphql/organizations-api/
-- oc create configmap --from-file=. organizations-api-int
+- oc create configmap --from-file=. organizations-api-${env}
