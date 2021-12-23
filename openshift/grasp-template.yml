@@ -67,6 +67,17 @@ objects:
           annotations:
             openshift.io/generated-by: OpenShiftWebConsole
         spec:
+          volumes:
+            - name: org-api
+              configMap:
+                name: organizations-api-${env}
+                defaultMode: 420
+            - name: services
+              configMap:
+                name: grasp-services-${env}
+                defaultMode: 420
+
+
           containers:
             - name: "grasp-${env}"
               terminationMessagePath: /dev/termination-log
@@ -84,6 +95,19 @@ objects:
               terminationMessagePolicy: File
               image: >-
                 image-registry.openshift-image-registry.svc:5000/metadata-mgm/grasp:${env}
+              volumeMounts:
+              - name: org-api
+                mountPath: /app/organizations-api
+              - name: services
+                mountPath: /app/services
+              env:
+              - name: SERVICES_FILE
+                value: /app/services/services.json
+              - name: RESOURCES_DIR
+                value: /app/organizations-api	    
+
+
+
           restartPolicy: Always
           terminationGracePeriodSeconds: 30
           dnsPolicy: ClusterFirst
@@ -108,4 +132,4 @@ parameters:
   - name: "cpu_limit"
     value: "300"
   - name: "svc_port"
-    value: "8080"
+    value: "4000"
