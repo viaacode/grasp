@@ -320,6 +320,36 @@ export default class Resource {
     }
   }
 
+  async tryQuery(sparqlQuery: string): Promise<Stream<Quad>> {
+    if (!this.sparqlClient) {
+      throw new Error(`Query was tried but the client is not set.`);
+    }
+    return this.sparqlClient.query.construct(
+      sparqlQuery,
+      {
+        operation: "postUrlencoded",
+      }
+    );
+  }
+
+  async execQuery(sparqlQuery: string, retries: number = 0) {
+    for (let i = 1; i <= retries; i++) {
+      try {
+        logger.info(
+          {
+            endpointUrl: this.sparqlClient ? this.sparqlClient.store.endpoint.endpointUrl : null,
+            try: i
+          },
+          "SPARQL query sent to endpoint."
+        );
+        return await this.tryQuery(sparqlQuery);
+      } catch (error) {
+        if (i < retries) continue;
+        throw error;
+      }
+    }
+  }
+
   /**
    * Fetch the SPARQL bindings for the GraphQL Type based on a list of IRIs and construct the result
    * @param iris
