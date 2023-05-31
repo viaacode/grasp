@@ -38,6 +38,7 @@ const path = process.env.ROOT_PATH || "/"
 const maxBatchSize = Number(process.env.MAX_BATCH_SIZE || Infinity)
 const resourcesDir = process.env.RESOURCES_DIR || "./resources"
 const servicesFile = process.env.SERVICES_FILE
+const prefetchEnabled = process.env.PREFETCH || true
 
 // Load services and query templates from file
 const templateIndex = await ConfigLoader.loadTemplateIndexFromDirectory(
@@ -191,6 +192,15 @@ const server = new ApolloServer<Context>({
   ],
 })
 
+// If enabled, fetch all resources without parameters to warm caches
+if (prefetchEnabled) {
+  try {
+    await Promise.all(resources.all.map(res => res.fetch({})))
+  } catch (error) {
+    logger.error(error, "Unable to prefetch resources on startup")
+  }
+}
+
 await server.start()
 
 app.use(
@@ -228,6 +238,7 @@ app.listen(port, () => {
       "Services file": servicesFile || "none",
       "Dataloader max. batch size": maxBatchSize,
       "SPARQL cache TTL": process.env.QUERY_CACHE_TTL,
+      "Prefetch at startup": prefetchEnabled,
     },
     `🚀 Server ready at http://localhost:${port}${path}`
   )
