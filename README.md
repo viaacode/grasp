@@ -547,3 +547,9 @@ Set the time in milliseconds that SPARQL queries live in the cache.
 
 Set the max number of SPARQL queries that are stored in the cache.
 You can disable the cache by setting this to 0.
+
+### `ORIGIN`
+
+(default: `*`)
+
+Set the possible allowed origins for CORS behavior

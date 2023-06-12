@@ -195,7 +195,10 @@ await server.start()
 
 app.use(
   path,
-  cors<cors.CorsRequest>(),
+  cors<cors.CorsRequest>({ 
+    // When no origin is specified, default to insecure setting. This should be disabled in the future.
+    origin: process.env.ORIGIN ? process.env.ORIGIN.split(',') : true, 
+    credentials: true }),
   parser.json(),
   expressMiddleware(server, {
     context: async () => {
